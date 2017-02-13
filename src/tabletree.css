@@ -1,0 +1,11 @@
+.table-tree .warning-msg {
+  color: #EF2B29;
+}
+
+.table-tree td[tt-expand] ng-md-icon {
+  margin-right: 4px;
+}
+
+.table-tree td[tt-expand] ng-md-icon svg {
+  vertical-align: middle;
+}

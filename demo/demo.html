@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>ngTableTree</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="http://7xlphe.com1.z0.glb.clouddn.com/angular-material.min-1.1.1.css">
+  <link rel="stylesheet" type="text/css" href="../src/tabletree.css">
+  <link rel="stylesheet" type="text/css" href="demo.css">
+</head>
+
+<body ng-app="MyApp">
+  <div ng-controller="MyController">
+    <table table-tree="tree" class="table">
+      <thead>
+        <tr>
+          <th>耗时</th>
+          <th style="min-width: 140px;">耗时百分比</th>
+          <th>调用栈</th>
+          <th>时间戳</th>
+          <th>应用</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr tt-template>
+          <td>*!duration!*</td>
+          <td>
+            <div layout="row" layout-align="start center">
+              <md-progress-linear md-mode="determinate" value="*!progress!*"></md-progress-linear>
+              <span style="min-width: 70px; text-align: right;">*!progress.toFixed(2)!*%</span>
+            </div>
+          </td>
+          <td tt-expand class="long-text">*!name!*</td>
+          <td>*!timestamp!*</td>
+          <td>*!id!*</td>
+          <td>
+            <md-button tt-click="vm.testClick(event, data);" class="md-raised md-primary min-button">删除</md-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular.min-1.5.8.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-animate.min-1.5.8.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-aria.min-1.5.8.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-messages.min-1.5.8.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-material.min-1.1.1.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-material-icons.min.js"></script>
+
+  <script type="text/javascript" src="../src/tabletree.js"></script>
+  <script type="text/javascript" src="demo.js"></script>
+</body>
+
+</html>
