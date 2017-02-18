@@ -79,4 +79,8 @@ angular.module('MyApp', ['ngMaterial', 'ngMdIcons', 'ngTableTree'])
       'timestamp': '1486522925565000',
       'traceId': 'fa81ae5e7b6f877f'
     }];
+
+    $scope.testClick = function(event, data) {
+      console.log(data);
+    };
   });

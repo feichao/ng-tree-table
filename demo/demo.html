@@ -24,18 +24,58 @@
       </thead>
       <tbody>
         <tr tt-template>
-          <td>*!duration!*</td>
+          <td>{{ **.duration }}</td>
           <td>
             <div layout="row" layout-align="start center">
-              <md-progress-linear md-mode="determinate" value="*!progress!*"></md-progress-linear>
-              <span style="min-width: 70px; text-align: right;">*!progress.toFixed(2)!*%</span>
+              <md-progress-linear md-mode="determinate" value="{{ **.progress }}"></md-progress-linear>
+              <span style="min-width: 70px; text-align: right;">{{ **.progress.toFixed(2) }}%</span>
             </div>
           </td>
-          <td tt-expand class="long-text">*!name!*</td>
-          <td>*!timestamp!*</td>
-          <td>*!id!*</td>
+          <td tt-expand class="long-text">
+            {{ **.name }}
+            <ng-md-icon size="24" icon="info">
+              <md-tooltip>123123</md-tooltip>
+            </ng-md-icon>
+          </td>
+          <td>{{ **.timestamp }}</td>
+          <td>{{ **.id }}</td>
           <td>
-            <md-button tt-click="vm.testClick(event, data);" class="md-raised md-primary min-button">删除</md-button>
+            <md-button ng-click="testClick($event, **);" class="md-raised md-primary min-button">删除</md-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table table-tree="tree" class="table">
+      <thead>
+        <tr>
+          <th>耗时</th>
+          <th style="min-width: 140px;">耗时百分比</th>
+          <th>调用栈</th>
+          <th>时间戳</th>
+          <th>应用</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr tt-template>
+          <td>{{ **.duration }}</td>
+          <td>
+            <div layout="row" layout-align="start center">
+              <md-progress-linear md-mode="determinate" value="{{ **.progress }}"></md-progress-linear>
+              <span style="min-width: 70px; text-align: right;">{{ **.progress.toFixed(2) }}%</span>
+            </div>
+          </td>
+          <td tt-expand class="long-text">
+            {{ **.name }}
+            <ng-md-icon size="24" icon="info">
+              <md-tooltip>123123</md-tooltip>
+            </ng-md-icon>
+          </td>
+          <td>{{ **.timestamp }}</td>
+          <td>{{ **.id }}</td>
+          <td>
+            <md-button ng-click="testClick($event, **);" class="md-raised md-primary min-button">删除</md-button>
           </td>
         </tr>
       </tbody>
