@@ -21,18 +21,18 @@ ngTableTree 定义了一个 tableTree 指令，在指令内部使用  $compile �
   </thead>
   <tbody>
     <tr tt-template>
-      <td>*!duration!*</td>
+      <td>{{ \*\*.duration }}</td>
       <td>
         <div layout="row" layout-align="start center">
-          <md-progress-linear md-mode="determinate" value="*!progress!*"></md-progress-linear>
-          <span>*!progress.toFixed(2)!*%</span>
+          <md-progress-linear md-mode="determinate" value="{{ \*\*.progress }}"></md-progress-linear>
+          <span>{{ \*\*.progress.toFixed(2) }}%</span>
         </div>
       </td>
-      <td tt-expand class="long-text">*!name!*</td>
-      <td>*!timestamp!*</td>
-      <td>*!id!*</td>
+      <td tt-expand>{{ \*\*.name }}</td>
+      <td>{{ \*\*.timestamp }}</td>
+      <td>{{ \*\*.id }}</td>
       <td>
-        <md-button tt-click="vm.testClick(event, data);" class="md-raised md-primary">删除</md-button>
+        <md-button tt-click="vm.testClick(event, **);" class="md-raised md-primary">删除</md-button>
       </td>
     </tr>
   </tbody>
@@ -125,10 +125,5 @@ $scope.tree = [{
 通过上面的例子可以看出我们总共定义了几个指令：
 
  - table-tree：关联要绑定的数据
- - tt-template：行数据模板，其中的行属性字段使用 \*!...!\* 包含，比如行数据的 duration 字段表示为 \*!duration!\*
- - tt-expand：放到 td 中，说明点击这个 td 可以展开或收起树
- - tt-click：关联任何元素上的 click 事件
-
-
-
-
+ - tt-template：行数据模板，未指明则以 tbody 下的第一个 tr 为模板，其中的行属性字段使用 {{ \*\* }} 包含，比如行数据的 duration 字段表示为 {{ \*\*.duration }}
+ - tt-expand：放到 td 中，说明点击这个 td 可以展开或收起树，未指明则以 tt-template 下的第一个 td 为模板
