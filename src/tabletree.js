@@ -84,7 +84,7 @@
     function postLink($scope, element, attr) {
       // console.log('start post link');
 
-      var tbody = element.find('tbody');
+      var tbody = element.addClass('tt-table').find('tbody');
       var ttTemplateElement = angular.element(originalTtTemplates[element.attr('tt-template-id')]);
 
       // 保存状态
@@ -97,17 +97,26 @@
         var templateStr = getTreeTemplate(null, getArray($scope.tableTree));
         // console.log(templateStr);
 
-        var scope = $scope.$new(true);
+        var scope = getNewScope();
         scope.trees = $scope.trees;
         scope.isExpand = $scope.isExpand;
 
         var compileStr = $compile(templateStr)(scope);
         var templateElement = angular.element(compileStr);
 
-        console.log($scope.trees);
-
         tbody.html('').append(templateElement);
       });
+
+      function getNewScope() {
+        var scope = $scope.$new(true);
+        for(var key in $scope.$parent) {
+          if(key[0] !== '$') {// 不是 angular 自带属性
+            scope[key] = $scope.$parent[key];
+          }
+        }
+
+        return scope;
+      }
 
       function getTreeTemplate(parentId, children) {
         var length = children.length;
@@ -145,7 +154,8 @@
 
         var tdExpandElement = findTdExpand(ttTemplateElementWithScope.find('td'));
         var tdExpandJQElement = angular.element(tdExpandElement);
-        tdExpandJQElement.html(getJqliteHtml(getExpandTemplate(tdExpandJQElement, branch, isShow.level)));
+        tdExpandJQElement.addClass('tt-expand-td')
+          .html(getJqliteHtml(getExpandTemplate(tdExpandJQElement, branch, isShow.level)));
 
         return getJqliteHtml(ttTemplateElementWithScope);
       }
@@ -185,7 +195,8 @@
           .attr('icon', '{{' + icon + '}}')
           .attr('style', 'margin-left: ' + (level * EXPAND_INTEND) + 'px')
           .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\'}')
-          .attr('ng-click', getExpandFunStr(branchId));
+          .attr('ng-click', getExpandFunStr(branchId))
+          .addClass('expand-icon');
 
         return angular.element('<div></div>')
           .append(expandIcon)

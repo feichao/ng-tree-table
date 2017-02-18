@@ -1,11 +1,12 @@
-.table-tree .warning-msg {
+.tt-table .warning-msg {
   color: #EF2B29;
 }
 
-.table-tree td[tt-expand] ng-md-icon {
+.tt-table .tt-expand-td .expand-icon {
   margin-right: 4px;
 }
 
-.table-tree td[tt-expand] ng-md-icon svg {
+.tt-table .tt-expand-td .expand-icon svg {
+  fill: #ccc;
   vertical-align: middle;
 }
