@@ -1,38 +1,32 @@
 ## 世界上最好用的基于 Angular 和 Angular Material 的树形表格组件
 
-【DEMO is coming...】
+[Demo][1]
 
 看到很多基于 angular material 的 table-tree 组件，都需要在 JS 文件中定义表格的列属性，麻烦不说，而且 HTML 属性定义在 JS 中，始终不方便维护，代码也很丑陋。
 
 ngTableTree 定义了一个 tableTree 指令，在指令内部使用  $compile 重新编译需要显示的 HTML 模板文件，所以我们可以直接在 HTML 中定义模板。
 
-比如：
+#### 比如：
 ```
-<table table-tree="tree">
+<table table-tree="tree" init-expand="true">
   <thead>
     <tr>
-      <th>耗时</th>
-      <th>耗时百分比</th>
-      <th>调用栈</th>
-      <th>时间戳</th>
-      <th>应用</th>
-      <th></th>
+      <th>Name</th>
+      <th>Age</th>
+      <th>Address</th>
+      <th>Contact</th>
     </tr>
   </thead>
   <tbody>
     <tr tt-template>
-      <td>{{ \*\*.duration }}</td>
+      <td tt-expand>{{ **.name }}</td>
+      <td>{{ **.age }}</td>
+      <td>{{ **.address }}</td>
       <td>
-        <div layout="row" layout-align="start center">
-          <md-progress-linear md-mode="determinate" value="{{ \*\*.progress }}"></md-progress-linear>
-          <span>{{ \*\*.progress.toFixed(2) }}%</span>
-        </div>
-      </td>
-      <td tt-expand>{{ \*\*.name }}</td>
-      <td>{{ \*\*.timestamp }}</td>
-      <td>{{ \*\*.id }}</td>
-      <td>
-        <md-button tt-click="vm.testClick(event, **);" class="md-raised md-primary">删除</md-button>
+        {{ **.contact }}
+        <ng-md-icon icon="info" style="fill: #ccc; vertical-align: middle;" size="16">
+          <md-tooltip>please contact me with {{ **.contact }}</md-tooltip>
+        </ng-md-icon>
       </td>
     </tr>
   </tbody>
@@ -42,88 +36,71 @@ ngTableTree 定义了一个 tableTree 指令，在指令内部使用  $compile �
 然后在 controller 中定义：
 ```
 $scope.tree = [{
-  'children': [{
-    'children': [{
-      'children': [{
-        'children': [{
-          'duration': 5005507,
-          'id': '22259474470f92c8',
-          'name': 'jedis-normal',
-          'parentId': '49251ba0bbeb7c23',
-          'progress': 94.0178,
-          'timestamp': '1486522925570000',
-          'traceId': 'fa81ae5e7b6f877f',
-          'children': [{
-            'duration': 5005507,
-            'id': '22259474470f92c8',
-            'name': 'jedis-normal',
-            'parentId': '49251ba0bbeb7c23',
-            'progress': 94.0178,
-            'timestamp': '1486522925570000',
-            'traceId': 'fa81ae5e7b6f877f',
-            'children': [{
-              'duration': 5005507,
-              'id': '22259474470f92c8',
-              'name': 'jedis-normal',
-              'parentId': '49251ba0bbeb7c23',
-              'progress': 94.0178,
-              'timestamp': '1486522925570000',
-              'traceId': 'fa81ae5e7b6f877f'
-            }],
-          }],
-        }],
-        'duration': 5009120,
-        'id': '49251ba0bbeb7c23',
-        'name': 'get_/jedis-normal',
-        'parentId': '6dd5d2bf9041a5eb',
-        'progress': 94.08567,
-        'timestamp': '1486522925569000',
-        'traceId': 'fa81ae5e7b6f877f'
-      }],
-      'duration': 5011852,
-      'id': '6dd5d2bf9041a5eb',
-      'name': 'callme1',
-      'parentId': '784097037f85455d',
-      'progress': 94.136986,
-      'timestamp': '1486522925566000',
-      'traceId': 'fa81ae5e7b6f877f'
+  name: 'frank',
+  age: 34,
+  address: 'Kezhu Road 192',
+  contact: '13600010001',
+  children: [{
+    name: 'frank a',
+    age: 34,
+    address: 'Kezhu Road 192',
+    contact: '13600010002'
+  }, {
+    name: 'frank b',
+    age: 34,
+    address: 'Kezhu Road 192',
+    contact: '13600010003',
+    children: [{
+      name: 'frank ba',
+      age: 34,
+      address: 'Kezhu Road 192',
+      contact: '13600010004'
     }, {
-      'children': [{
-        'duration': 105346,
-        'id': 'cfc2ccdf81b3a08f',
-        'name': 'callme5',
-        'parentId': '4fd8c962cec839dc',
-        'progress': 1.9787006,
-        'timestamp': '1486522930579000',
-        'traceId': 'fa81ae5e7b6f877f'
-      }],
-      'duration': 309145,
-      'id': '4fd8c962cec839dc',
-      'name': 'callme2',
-      'parentId': '784097037f85455d',
-      'progress': 5.8066316,
-      'timestamp': '1486522930578000',
-      'traceId': 'fa81ae5e7b6f877f'
-    }],
-    'duration': 5322414,
-    'id': '784097037f85455d',
-    'name': 'callme0',
-    'parentId': 'e038b25ba938a1a2',
-    'progress': 99.97023,
-    'timestamp': '1486522925566000',
-    'traceId': 'fa81ae5e7b6f877f'
-  }],
-  'duration': 5323999,
-  'id': 'e038b25ba938a1a2',
-  'name': 'get_/testdapper',
-  'progress': 100.0,
-  'timestamp': '1486522925565000',
-  'traceId': 'fa81ae5e7b6f877f'
+      name: 'frank bb',
+      age: 34,
+      address: 'Kezhu Road 192',
+      contact: '13600010005'
+    }, {
+      name: 'frank bc',
+      age: 34,
+      address: 'Kezhu Road 192',
+      contact: '13600010006'
+    }]
+  }, {
+    name: 'frank c',
+    age: 34,
+    address: 'Kezhu Road 192',
+    contact: '13600010003'
+  }]
+}, {
+  name: 'frank d',
+  age: 34,
+  address: 'Kezhu Road 192',
+  contact: '13600010007'
 }];
 ```
 
-通过上面的例子可以看出我们总共定义了几个指令：
+#### 使用
+如上述例子，在需要使用 table tree 的地方加入 table-tree 指令，并且关联要绑定的数据。
 
+#### 参数说明：
  - table-tree：关联要绑定的数据
- - tt-template：行数据模板，未指明则以 tbody 下的第一个 tr 为模板，其中的行属性字段使用 {{ \*\* }} 包含，比如行数据的 duration 字段表示为 {{ \*\*.duration }}
- - tt-expand：放到 td 中，说明点击这个 td 可以展开或收起树，未指明则以 tt-template 下的第一个 td 为模板
+ - init-expand：初始化时的默认展开说明，默认展开
+
+### 注意：
+- 绑定的数据下一级数据使用 children 属性指定。
+- 如果要指定行数据模板，请在定义 tr 时加入 tt-template 属性，否则以第一个 tr 行为模板
+    ```
+    <tbody>
+      <tr tt-template>...</tr>
+    </tbody>
+    ```
+    其中的行属性字段使用 {{ \*\* }} 指代，比如行数据的 name 字段表示为 {{ \*\*.name }}
+
+- 如果要指定哪个单元格控制展开收起动作，请使用 tt-expand 属性，否则以行数据模板的第一个 td 为默认控制行展开收起的单元格：
+    ```
+    <td tt-expand>{{ **.name }}</td>
+    ```
+
+
+  [1]: http://www.0xfc.cn/article/0/58a9422a2c2ff13a2ae3752c

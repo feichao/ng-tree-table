@@ -3,7 +3,9 @@
 }
 
 .tt-table .tt-expand-td .expand-icon {
+  cursor: pointer;
   margin-right: 4px;
+  outline: none;
 }
 
 .tt-table .tt-expand-td .expand-icon svg {

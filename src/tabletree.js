@@ -66,7 +66,8 @@
     return {
       restrict: 'A',
       scope: {
-        tableTree: '='
+        tableTree: '=',
+        initExpand: '@'
       },
       template: function (element) {
         var tbody = element.find('tbody');
@@ -94,6 +95,8 @@
       };
 
       $scope.$watch('tableTree', function () {
+        $scope.initExpand = $scope.initExpand === 'false' ? false : true;
+
         var templateStr = getTreeTemplate(null, getArray($scope.tableTree));
         // console.log(templateStr);
 
@@ -122,11 +125,14 @@
         var length = children.length;
         var branch;
         var branchId;
+        var result = '';
         for(var i = 0; i < length; i++) {
           branch = children[i];
           branchId = saveBranch(parentId, branch);
-          return template(branchId) + getTreeTemplate(branchId, getArray(branch.children));
+          result += template(branchId) + getTreeTemplate(branchId, getArray(branch.children));
         }
+
+        return result;
       }
 
       function saveBranch(parentId, branch) {
@@ -134,7 +140,7 @@
         $scope.trees[id] = {
           id: id,
           parentId: parentId,
-          isExpand: true,
+          isExpand: $scope.initExpand,
           data: branch
         };
 
@@ -191,8 +197,7 @@
         var isExpand = scopeStr + '.isExpand && ' + isShow;
         var icon = isExpand + ' ? \'keyboard_arrow_down\' : \'keyboard_arrow_right\'';
         var expandIcon = angular.element('<ng-md-icon size="24"></ng-md-icon>')
-        expandIcon.attr('ng-class', isShow + ' ? \'\' : \'hidden\'')
-          .attr('icon', '{{' + icon + '}}')
+        expandIcon.attr('icon', '{{' + icon + '}}')
           .attr('style', 'margin-left: ' + (level * EXPAND_INTEND) + 'px')
           .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\'}')
           .attr('ng-click', getExpandFunStr(branchId))
