@@ -19,6 +19,7 @@
           <th>Age</th>
           <th>Address</th>
           <th>Contact</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -31,6 +32,9 @@
             <ng-md-icon icon="info" style="fill: #ccc; vertical-align: middle;" size="16">
               <md-tooltip>please contact me with {{ **.contact }}</md-tooltip>
             </ng-md-icon>
+          </td>
+          <td>
+            <md-button class="md-primary md-raised" ng-click="addAge($event, **)">Add Age</md-button>
           </td>
         </tr>
       </tbody>

@@ -43,4 +43,8 @@ angular.module('MyApp', ['ngMaterial', 'ngMdIcons', 'ngTableTree'])
       address: 'Kezhu Road 192',
       contact: '13600010007'
     }];
+
+    $scope.addAge = function(event, branch) {
+      branch.age += 1;
+    }
   });
