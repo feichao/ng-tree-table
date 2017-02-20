@@ -1,0 +1,21 @@
+{
+  "name": "ngTableTree",
+  "version": "0.0.1",
+  "authors": [
+    "feichao.imayu.wan@gmail.com"
+  ],
+  "description": "ngTableTree",
+  "keywords": [
+    "angular, material, table tree"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "angular": "^1.5.8",
+    "angular-material": "^1.1.1",
+    "angular-material-icons": "^0.7.1"
+  }
+}
