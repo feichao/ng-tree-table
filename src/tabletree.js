@@ -99,6 +99,9 @@
 
         var templateStr = getTreeTemplate(null, getArray($scope.tableTree));
         // console.log(templateStr);
+        if(!templateStr) {
+          return;
+        }
 
         var scope = getNewScope();
         scope.trees = $scope.trees;
