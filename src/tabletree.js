@@ -2,7 +2,7 @@
   'use strict';
 
   var SCOPE_HINT = '\\*\\*';
-  var EXPAND_INTEND = 10; // 'px'
+  var EXPAND_INTENT = 10; // 'px'
   var originalTtTemplates = {};
 
   var id = 0;
@@ -67,7 +67,8 @@
       restrict: 'A',
       scope: {
         tableTree: '=',
-        initExpand: '@'
+        initExpand: '@',
+        expandIndent: '@'
       },
       template: function (element) {
         var tbody = element.find('tbody');
@@ -87,6 +88,8 @@
 
       var tbody = element.addClass('tt-table').find('tbody');
       var ttTemplateElement = angular.element(originalTtTemplates[element.attr('tt-template-id')]);
+
+      var indent = angular.isDefined($scope.expandIndent) ? $scope.expandIndent : EXPAND_INTENT;
 
       // 保存状态
       $scope.trees = {};
@@ -201,7 +204,7 @@
         var icon = isExpand + ' ? \'keyboard_arrow_down\' : \'keyboard_arrow_right\'';
         var expandIcon = angular.element('<ng-md-icon size="24"></ng-md-icon>')
         expandIcon.attr('icon', '{{' + icon + '}}')
-          .attr('style', 'margin-left: ' + (level * EXPAND_INTEND) + 'px')
+          .attr('style', 'margin-left: ' + (level * indent) + 'px')
           .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\'}')
           .attr('ng-click', getExpandFunStr(branchId))
           .addClass('expand-icon');
