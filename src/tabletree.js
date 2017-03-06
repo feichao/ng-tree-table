@@ -10,21 +10,6 @@
     return id++;
   }
 
-  function saveOriginalTtTemplate(tbody) {
-    var id;
-    var ttTemplate = findTtTemplate(tbody.find('tr'));
-    if (ttTemplate) {
-      id = generateId();
-      originalTtTemplates[id] = ttTemplate;
-      return {
-        ttTemplateId: id,
-        ttTemplate: ttTemplate
-      };
-    }
-
-    return undefined;
-  }
-
   function findMatchAttrTemplate(elements, attr) {
     var length = elements.length;
     for (var i = 0; i < length; i++) {
@@ -46,7 +31,7 @@
   }
 
   function getJqliteHtml(element) {
-    if(element instanceof angular.element) {
+    if (element instanceof angular.element) {
       return element[0].outerHTML;
     }
   }
@@ -62,7 +47,7 @@
   /**
    * @ngInject
    */
-  function tableTree($compile) {
+  function tableTree($compile, $interpolate) {
     return {
       restrict: 'A',
       scope: {
@@ -70,151 +55,160 @@
         initExpand: '@',
         expandIndent: '@'
       },
-      template: function (element) {
-        var tbody = element.find('tbody');
-        var result = saveOriginalTtTemplate(tbody);
-        if(!result) {
-          return;  
-        }
-
-        angular.element(result.ttTemplate).remove();
-        return getJqliteHtml(element.attr('tt-template-id', result.ttTemplateId));  
-      },
-      link: postLink
+      priority: 1001,
+      terminal: true,
+      compile: compile
     };
 
-    function postLink($scope, element, attr) {
-      // console.log('start post link');
+    function compile(tElement, tAttr) {
+      var tbody = tElement.addClass('tt-table').find('tbody');
+      var ttTemplateElement = angular.element(findTtTemplate(tbody.find('tr')));
 
-      var tbody = element.addClass('tt-table').find('tbody');
-      var ttTemplateElement = angular.element(originalTtTemplates[element.attr('tt-template-id')]);
+      tbody.html('');
 
-      var indent = angular.isDefined($scope.expandIndent) ? $scope.expandIndent : EXPAND_INTENT;
+      return function ($scope, element, attr) {
+        console.log('start post link');
 
-      // 保存状态
-      $scope.trees = {};
-      $scope.isExpand = function(id) {
-        $scope.trees[id].isExpand = !$scope.trees[id].isExpand;
-      };
+        var indent = angular.isDefined($scope.expandIndent) ? $scope.expandIndent : EXPAND_INTENT;
 
-      $scope.$watch('tableTree', function () {
-        $scope.initExpand = $scope.initExpand === 'false' ? false : true;
+        // 保存状态
+        $scope.trees = {};
+        $scope.isExpand = function (id) {
+          $scope.trees[id].isExpand = !$scope.trees[id].isExpand;
+        };
 
-        var templateStr = getTreeTemplate(null, getArray($scope.tableTree));
-        // console.log(templateStr);
-        if(!templateStr) {
-          return;
-        }
+        $scope.$watch('tableTree', function () {
+          var startTime = +new Date();
+          console.log('tableTree model changed: ' + 0);
 
-        var scope = getNewScope();
-        scope.trees = $scope.trees;
-        scope.isExpand = $scope.isExpand;
+          $scope.initExpand = $scope.initExpand === 'false' ? false : true;
 
-        var compileStr = $compile(templateStr)(scope);
-        var templateElement = angular.element(compileStr);
+          var templateStr = getTreeTemplate(null, getArray($scope.tableTree));
 
-        tbody.html('').append(templateElement);
-      });
+          console.log('get tableTree templateStr: ' + (+new Date() - startTime));
 
-      function getNewScope() {
-        var scope = $scope.$new(true);
-        for(var key in $scope.$parent) {
-          if(key[0] !== '$') {// 不是 angular 自带属性
-            scope[key] = $scope.$parent[key];
+          // console.log(templateStr);
+          if (!templateStr) {
+            return;
           }
+
+          var scope = getNewScope();
+          scope.trees = $scope.trees;
+          scope.isExpand = $scope.isExpand;
+
+          // var compileStr = $interpolate(templateStr)(scope);
+          // console.log('get tableTree interpolateStr: ' + (+new Date() - startTime));
+
+          var compileStr = $compile(templateStr)(scope);
+          console.log('get tableTree compileStr: ' + (+new Date() - startTime));
+
+          var templateElement = angular.element(compileStr);
+
+          tbody.html('').append(templateElement);
+
+          console.log('completly render: ' + (+new Date() - startTime));
+        });
+
+        function getNewScope() {
+          var scope = $scope.$new(true);
+          for (var key in $scope.$parent) {
+            if (key[0] !== '$') {// 不是 angular 自带属性
+              scope[key] = $scope.$parent[key];
+            }
+          }
+
+          return scope;
         }
 
-        return scope;
-      }
+        function getTreeTemplate(parentId, children) {
+          var length = children.length;
+          var branch;
+          var branchId;
+          var result = '';
+          for (var i = 0; i < length; i++) {
+            branch = children[i];
+            branchId = saveBranch(parentId, branch);
+            result += template(branchId) + getTreeTemplate(branchId, getArray(branch.children));
+          }
 
-      function getTreeTemplate(parentId, children) {
-        var length = children.length;
-        var branch;
-        var branchId;
-        var result = '';
-        for(var i = 0; i < length; i++) {
-          branch = children[i];
-          branchId = saveBranch(parentId, branch);
-          result += template(branchId) + getTreeTemplate(branchId, getArray(branch.children));
+          return result;
         }
 
-        return result;
-      }
+        function saveBranch(parentId, branch) {
+          var id = generateId();
+          $scope.trees[id] = {
+            id: id,
+            parentId: parentId,
+            isExpand: $scope.initExpand,
+            data: branch
+          };
 
-      function saveBranch(parentId, branch) {
-        var id = generateId();
-        $scope.trees[id] = {
-          id: id,
-          parentId: parentId,
-          isExpand: $scope.initExpand,
-          data: branch
-        };
-
-        return id;
-      }
-
-      function template(branchId) {
-        var branch = $scope.trees[branchId];
-        var parentId = branch.parentId;
-
-        var ttTemplateStr = getJqliteHtml(ttTemplateElement);
-        ttTemplateStr = ttTemplateStr.replace(/\*\*/g, getScopeStr(branchId) + '.data');
-
-        var ttTemplateElementWithScope = angular.element(ttTemplateStr);
-        var isShow = getShouldExpandStr(branch);
-        ttTemplateElementWithScope.attr('ng-show', isShow.str || 'true');
-
-        var tdExpandElement = findTdExpand(ttTemplateElementWithScope.find('td'));
-        var tdExpandJQElement = angular.element(tdExpandElement);
-        tdExpandJQElement.addClass('tt-expand-td')
-          .html(getJqliteHtml(getExpandTemplate(tdExpandJQElement, branch, isShow.level)));
-
-        return getJqliteHtml(ttTemplateElementWithScope);
-      }
-
-      function getShouldExpandStr(branch) {
-        var parentId = branch.parentId;
-        var result = [];
-        var level = 0;
-        while(parentId) {
-          result.push(getScopeStr(parentId) + '.isExpand');
-          parentId = $scope.trees[parentId].parentId;
-          level++;
+          return id;
         }
 
-        return {
-          str: result.join(' && '),
-          level: level
-        };
-      }
+        function template(branchId) {
+          var branch = $scope.trees[branchId];
+          var parentId = branch.parentId;
 
-      function getScopeStr(branchId) {
-        return 'trees[' + branchId + ']';
-      }
+          var ttTemplateStr = getJqliteHtml(ttTemplateElement);
+          ttTemplateStr = ttTemplateStr.replace(/\*\*/g, getScopeStr(branchId) + '.data');
 
-      function getExpandFunStr(branchId) {
-        return 'isExpand(' + branchId + ')';
-      }
+          var ttTemplateElementWithScope = angular.element(ttTemplateStr);
+          var isShow = getShouldExpandStr(branch);
+          ttTemplateElementWithScope.attr('ng-show', isShow.str || 'true');
 
-      function getExpandTemplate(tdElement, branchData, level) {
-        var branchId = branchData.id;
-        var scopeStr = getScopeStr(branchId);
-        var isShow = scopeStr + '.data.children.length > 0';
-        var isExpand = scopeStr + '.isExpand && ' + isShow;
-        var icon = isExpand + ' ? \'keyboard_arrow_down\' : \'keyboard_arrow_right\'';
-        var expandIcon = angular.element('<ng-md-icon size="24"></ng-md-icon>')
-        expandIcon.attr('icon', '{{' + icon + '}}')
-          .attr('style', 'margin-left: ' + (level * indent) + 'px')
-          .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\'}')
-          .attr('ng-click', getExpandFunStr(branchId))
-          .addClass('expand-icon');
+          var tdExpandElement = findTdExpand(ttTemplateElementWithScope.find('td'));
+          var tdExpandJQElement = angular.element(tdExpandElement);
+          tdExpandJQElement.addClass('tt-expand-td')
+            .html(getJqliteHtml(getExpandTemplate(tdExpandJQElement, branch, isShow.level)));
 
-        return angular.element('<div></div>')
-          .append(expandIcon)
-          .append(tdElement.contents())
-          .attr('layout', 'row')
-          .attr('layout-align', 'start center');
-      }
+          return getJqliteHtml(ttTemplateElementWithScope);
+        }
+
+        function getShouldExpandStr(branch) {
+          var parentId = branch.parentId;
+          var result = [];
+          var level = 0;
+          while (parentId) {
+            result.push(getScopeStr(parentId) + '.isExpand');
+            parentId = $scope.trees[parentId].parentId;
+            level++;
+          }
+
+          return {
+            str: result.join(' && '),
+            level: level
+          };
+        }
+
+        function getScopeStr(branchId) {
+          return 'trees[' + branchId + ']';
+        }
+
+        function getExpandFunStr(branchId) {
+          return 'isExpand(' + branchId + ')';
+        }
+
+        function getExpandTemplate(tdElement, branchData, level) {
+          var branchId = branchData.id;
+          var scopeStr = getScopeStr(branchId);
+          var isShow = scopeStr + '.data.children.length > 0';
+          var isExpand = scopeStr + '.isExpand && ' + isShow;
+          var icon = isExpand + ' ? \'keyboard_arrow_down\' : \'keyboard_arrow_right\'';
+          var expandIcon = angular.element('<ng-md-icon size="24"></ng-md-icon>')
+          expandIcon.attr('icon', 'keyboard_arrow_down')
+            .attr('style', 'margin-left: ' + (level * indent) + 'px')
+            .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\'}')
+            .attr('ng-click', getExpandFunStr(branchId))
+            .addClass('expand-icon');
+
+          return angular.element('<div></div>')
+            .append(expandIcon)
+            .append(tdElement.contents())
+            .attr('layout', 'row')
+            .attr('layout-align', 'start center');
+        }
+      };
     }
   }
 })();
