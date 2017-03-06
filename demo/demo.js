@@ -44,13 +44,6 @@ angular.module('MyApp', ['ngMaterial', 'ngMdIcons', 'ngTableTree'])
       contact: '13600010007'
     }];
 
-    $scope.tree = $scope.tree.concat($scope.tree).concat($scope.tree).concat($scope.tree);
-    $scope.tree = $scope.tree.concat($scope.tree)
-    $scope.tree = $scope.tree.concat($scope.tree)
-    $scope.tree = $scope.tree.concat($scope.tree)
-    // $scope.tree = $scope.tree.concat($scope.tree)
-    // $scope.tree = $scope.tree.concat($scope.tree)
-
     $scope.addAge = function(event, branch) {
       branch.age += 1;
     }

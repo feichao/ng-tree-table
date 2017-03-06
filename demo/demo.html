@@ -11,7 +11,7 @@
 
 <body>
   <div ng-app="MyApp" ng-controller="MyController">
-    <h3>init-expand: true</h3>
+    <h3>init-expand: true (default), expand-indent: 10px (default)</h3>
     <table table-tree="tree" init-expand="true" expand-indent="20">
       <thead>
         <tr>
@@ -40,66 +40,8 @@
       </tbody>
     </table>
 
-    <!--<table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Age</th>
-          <th>Address</th>
-          <th>Contact</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ng-repeat-start="branch in tree track by $index">
-          <td>{{ branch.name }}</td>
-          <td>{{ branch.age }}</td>
-          <td>{{ branch.address }}</td>
-          <td>
-            {{ branch.contact }}
-            <ng-md-icon icon="info" style="fill: #ccc; vertical-align: middle;" size="16">
-              <md-tooltip>please contact me with {{ branch.contact }}</md-tooltip>
-            </ng-md-icon>
-          </td>
-          <td>
-            <md-button class="md-primary md-raised" ng-click="addAge($event, branch)">Add Age</md-button>
-          </td>
-        </tr>
-        <tr ng-repeat-start="branch_1 in branch.children track by $index">
-          <td>{{ branch_1.name }}</td>
-          <td>{{ branch_1.age }}</td>
-          <td>{{ branch_1.address }}</td>
-          <td>
-            {{ branch_1.contact }}
-            <ng-md-icon icon="info" style="fill: #ccc; vertical-align: middle;" size="16">
-              <md-tooltip>please contact me with {{ branch_1.contact }}</md-tooltip>
-            </ng-md-icon>
-          </td>
-          <td>
-            <md-button class="md-primary md-raised" ng-click="addAge($event, branch_1)">Add Age</md-button>
-          </td>
-        </tr>
-        <tr ng-repeat-start="branch_2 in branch_1.children track by $index">
-          <td>{{ branch_2.name }}</td>
-          <td>{{ branch_2.age }}</td>
-          <td>{{ branch_2.address }}</td>
-          <td>
-            {{ branch_2.contact }}
-            <ng-md-icon icon="info" style="fill: #ccc; vertical-align: middle;" size="16">
-              <md-tooltip>please contact me with {{ branch_2.contact }}</md-tooltip>
-            </ng-md-icon>
-          </td>
-          <td>
-            <md-button class="md-primary md-raised" ng-click="addAge($event, branch_2)">Add Age</md-button>
-          </td>
-        </tr>
-        <tr ng-repeat-end ng-if="false"></tr>
-        <tr ng-repeat-end ng-if="false"></tr>
-        <tr ng-repeat-end ng-if="false"></tr>
-      </tbody>
-    </table>-->
-    <!--<h3 style="margin-top: 30px;">init-expand: false</h3>
-    <table table-tree="tree" init-expand="false">
+    <h3 style="margin-top: 30px;">init-expand: false, expand-indent: 20px</h3>
+    <table table-tree="tree" init-expand="false" expand-indent="20">
       <thead>
         <tr>
           <th>Name</th>
@@ -116,7 +58,7 @@
           <td>{{ **.contact }}</td>
         </tr>
       </tbody>
-    </table>-->
+    </table>
   </div>
   <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular.min-1.5.8.js"></script>
   <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-animate.min-1.5.8.js"></script>

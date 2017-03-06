@@ -8,7 +8,7 @@ ngTableTree 定义了一个 tableTree 指令，在指令内部使用  $compile �
 
 #### 比如：
 ```
-<table table-tree="tree" init-expand="true">
+<table table-tree="tree" init-expand="true" expand-indent="10">
   <thead>
     <tr>
       <th>Name</th>
@@ -86,6 +86,7 @@ $scope.tree = [{
 #### 参数说明：
  - table-tree：关联要绑定的数据
  - init-expand：初始化时的默认展开说明，默认展开
+ - expand-indent：层级缩进，默认为 10px
 
 ### 注意：
 - 绑定的数据下一级数据使用 children 属性指定。
