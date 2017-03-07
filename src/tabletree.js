@@ -79,6 +79,10 @@
           $scope.trees[index].__$isExpand = !$scope.trees[index].__$isExpand;
         };
         $scope.isTrShow = function (index) {
+          if(!$scope.trees[index]) {
+            return true;
+          }
+
           var i = $scope.trees[index].__$parentIndex;
           while(typeof i === 'number' && i >= 0) {
             if(!$scope.trees[i].__$isExpand) {
@@ -88,20 +92,11 @@
           }
           return true;
         };
-        $scope.getTrDepth = function (index) {
-          var i = $scope.trees[index].__$parentIndex;
-          var depth = 0;
-          while(typeof i === 'number' && i >= 0) {
-            depth++;
-            i = $scope.trees[i].__$parentIndex;
-          }
-          return depth;
-        };
 
         $scope.$watch('tableTree', function () {
           $scope.trees = [];
           $scope.indent = angular.isDefined($scope.expandIndent) ? $scope.expandIndent : EXPAND_INTENT;
-          $scope.initExpand = angular.fromJson($scope.initExpand);
+          $scope.initExpand = $scope.initExpand ? angular.fromJson($scope.initExpand) : true;
 
           getTreeStatus(null, getArray($scope.tableTree));
           log($scope.trees);
@@ -129,14 +124,26 @@
           return scope;
         }
 
+        function getTrDepth(index) {
+          var i = $scope.trees[index].__$parentIndex;
+          var depth = 0;
+          while(typeof i === 'number' && i >= 0) {
+            depth++;
+            i = $scope.trees[i].__$parentIndex;
+          }
+
+          return depth;
+        };
+
         function saveBranchBlock(parentIndex, branch) {
           var index = $scope.trees.length;
           $scope.trees.push(angular.extend({
             __$index: index,
             __$parentIndex: parentIndex,
-            __$isExpand: $scope.initExpand,
+            __$isExpand: $scope.initExpand
           }, branch));
 
+          $scope.trees[index].__$depth = getTrDepth(index);
           return index;
         }
 
@@ -174,7 +181,7 @@
           var icon = isExpand + ' ? \'keyboard_arrow_down\' : \'keyboard_arrow_right\'';
           var expandIcon = angular.element('<ng-md-icon size="24"></ng-md-icon>')
           expandIcon.attr('icon', '{{' + icon + '}}')
-            .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\', marginLeft: getTrDepth(tree.__$index) * indent + \'px\'}')
+            .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\', marginLeft: tree.__$depth * indent + \'px\'}')
             .attr('ng-click', 'toggleExpand(tree.__$index)')
             .addClass('expand-icon');
 
