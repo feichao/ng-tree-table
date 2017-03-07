@@ -3,12 +3,50 @@
 
   var SCOPE_HINT = '\\*\\*';
   var EXPAND_INTENT = 10; // 'px'
-  var DEBUG = true;
+  var DEBUG = false;
+
+  var TT_TEMPLATE_ID = 'tt-template-id';
+  var originalTtTemplates = {};
+  var id = 0;
 
   function log(msg) {
     if(DEBUG) {
       console.log(msg);
     }
+  }
+
+  function generateId() {
+    return id++;
+  }
+
+  function saveOriginalTtTemplate(tbody) {
+    clearOriginalTtTemplate();
+
+    var id;
+    var ttTemplate = findTtTemplate(tbody.find('tr'));
+    if (ttTemplate) {
+      id = generateId();
+      originalTtTemplates[id] = ttTemplate;
+      return {
+        ttTemplateId: id,
+        ttTemplate: ttTemplate
+      };
+    }
+    return undefined;
+  }
+
+  function clearOriginalTtTemplate() {
+    var newOriginalTtTemplates = {};
+    var tables = angular.element(document.body).find('table');
+    angular.forEach(tables, function(table) {
+      var table = angular.element(table);
+      var id = table.attr(TT_TEMPLATE_ID);
+      if(originalTtTemplates[id]) {
+        newOriginalTtTemplates[id] = originalTtTemplates[id];
+      }
+    });
+
+    originalTtTemplates = newOriginalTtTemplates;
   }
 
   function findMatchAttrTemplate(elements, attr) {
@@ -55,17 +93,27 @@
         initExpand: '@',
         expandIndent: '@'
       },
-      priority: 1001,
-      terminal: true,
+      template: function(element) {
+        var tbody = element.addClass('tt-table').find('tbody');
+        var saveResult = saveOriginalTtTemplate(tbody);
+        if(!saveResult) {
+          return;  
+        }
+
+        log(originalTtTemplates);
+
+        angular.element(saveResult.ttTemplate).remove();
+        return getJqliteHtml(element.attr(TT_TEMPLATE_ID, saveResult.ttTemplateId));  
+      },
+      // priority: 1001,
+      // terminal: true,
       compile: compile
     };
 
     function compile(tElement, tAttr) {
       var thNum = tElement.find('thead').find('th').length;
       var tbody = tElement.addClass('tt-table').find('tbody');
-      var ttTemplateDom = findTtTemplate(tbody.find('tr'));
-
-      tbody.html('');
+      var ttTemplateDom = originalTtTemplates[tElement.attr(TT_TEMPLATE_ID)];
 
       return function ($scope, element, attr) {
         log('start post link');
@@ -73,7 +121,7 @@
         var templateStr = getTreeTemplate();
         var treesCompileScope;
 
-        // 保存状态
+        // save tree status
         $scope.trees = [];
         $scope.toggleExpand = function (index) {
           $scope.trees[index].__$isExpand = !$scope.trees[index].__$isExpand;
