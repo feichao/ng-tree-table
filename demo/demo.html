@@ -11,8 +11,8 @@
 
 <body>
   <div ng-app="MyApp" ng-controller="MyController">
-    <h3>init-expand: true (default), expand-indent: 10px (default)</h3>
-    <table table-tree="tree" init-expand="true" expand-indent="20">
+    <h3>init-expand: true (default), expand-indent: 10px (default), deep-watch: true（default）</h3>
+    <table table-tree="tree" init-expand="true" expand-indent="20" deep-watch="true">
       <thead>
         <tr>
           <th>Name</th>
@@ -44,22 +44,35 @@
       </tbody>
     </table>
 
-    <h3 style="margin-top: 30px;">init-expand: false, expand-indent: 20px</h3>
-    <table table-tree="tree" init-expand="false" expand-indent="20">
+    <h3 style="margin-top: 30px;">init-expand: false, expand-indent: 20px, deep-watch: false</h3>
+    <table table-tree="tree2" init-expand="false" expand-indent="20" deep-watch="false">
       <thead>
         <tr>
           <th>Name</th>
           <th>Age</th>
           <th>Address</th>
           <th>Contact</th>
+          <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>{{ **.name }}</td>
-          <td tt-expand>{{ **.age }}</td>
+          <td>{{ **.age }}</td>
           <td>{{ **.address }}</td>
-          <td>{{ **.contact }}</td>
+          <td>
+            {{ **.contact }}
+            <ng-md-icon icon="info" style="fill: #ccc; vertical-align: middle;" size="16">
+              <md-tooltip>please contact me with {{ **.contact }}</md-tooltip>
+            </ng-md-icon>
+          </td>
+          <td>
+            <md-button class="md-primary md-raised" ng-click="addAge($event, **)">Add Age</md-button>
+          </td>
+          <td>
+            <md-button class="md-primary md-raised" ng-click="insertRow2($event, **)">Insert Row</md-button>
+          </td>
         </tr>
       </tbody>
     </table>

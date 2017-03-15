@@ -44,12 +44,23 @@ angular.module('MyApp', ['ngMaterial', 'ngMdIcons', 'ngTableTree'])
       contact: '13600010007'
     }];
 
+    $scope.tree2 = angular.copy($scope.tree);
+
     $scope.addAge = function(event, branch) {
       branch.age += 1;
     };
 
     $scope.insertRow = function(event, branch) {
       $scope.tree[0].children.push({
+        name: 'frank cc',
+        age: 44,
+        address: 'Kezhu Road 192',
+        contact: '13600010009'
+      });
+    };
+
+    $scope.insertRow2 = function(event, branch) {
+      $scope.tree2[0].children.push({
         name: 'frank cc',
         age: 44,
         address: 'Kezhu Road 192',

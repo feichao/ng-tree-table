@@ -91,7 +91,8 @@
       scope: {
         tableTree: '=',
         initExpand: '@',
-        expandIndent: '@'
+        expandIndent: '@',
+        deepWatch: '@'
       },
       template: function(element) {
         var tbody = element.addClass('tt-table').find('tbody');
@@ -120,6 +121,9 @@
         var ttTemplateElement = angular.element(ttTemplateDom);
         var templateStr = getTreeTemplate();
         var treesCompileScope;
+
+        // whether deep watch the collection
+        $scope.deepWatch = $scope.deepWatch ? angular.fromJson($scope.deepWatch) : true;
 
         // save tree status
         $scope.trees = [];
@@ -160,7 +164,7 @@
           var compileStr = $compile(templateStr)(treesCompileScope);
           var templateElement = angular.element(compileStr);
           tbody.html('').append(templateElement);
-        }, true);
+        }, $scope.deepWatch);
 
         function getNewScope() {
           var scope = $scope.$parent.$new();
