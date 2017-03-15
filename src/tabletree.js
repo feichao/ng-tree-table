@@ -160,7 +160,7 @@
           var compileStr = $compile(templateStr)(treesCompileScope);
           var templateElement = angular.element(compileStr);
           tbody.html('').append(templateElement);
-        });
+        }, true);
 
         function getNewScope() {
           var scope = $scope.$parent.$new();

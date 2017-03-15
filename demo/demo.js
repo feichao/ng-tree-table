@@ -1,5 +1,5 @@
 angular.module('MyApp', ['ngMaterial', 'ngMdIcons', 'ngTableTree'])
-  .controller('MyController', function ($scope) {
+  .controller('MyController', function ($scope, $timeout) {
     $scope.tree = [{
       name: 'frank',
       age: 34,
@@ -46,5 +46,14 @@ angular.module('MyApp', ['ngMaterial', 'ngMdIcons', 'ngTableTree'])
 
     $scope.addAge = function(event, branch) {
       branch.age += 1;
-    }
+    };
+
+    $scope.insertRow = function(event, branch) {
+      $scope.tree[0].children.push({
+        name: 'frank cc',
+        age: 44,
+        address: 'Kezhu Road 192',
+        contact: '13600010009'
+      });
+    };
   });
