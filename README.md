@@ -85,7 +85,7 @@ $scope.tree = [{
 
 #### 参数说明：
  - table-tree：关联要绑定的数据
- - init-expand：初始化时的默认展开说明，默认展开
+ - init-expand：初始化时的默认展开说明，默认展开(true). 也可以设置为数字, 表示默认展开的层数, 第一层是 1 ,第二层是 2, 以此类推
  - expand-indent：层级缩进，默认为 10px
  - deep-watch：是否深度监控数据集的改变，默认 true
 
