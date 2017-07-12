@@ -46,6 +46,18 @@ angular.module('MyApp', ['ngMaterial', 'ngMdIcons', 'ngTableTree'])
 
     $scope.tree2 = angular.copy($scope.tree);
 
+    $scope.tree = $scope.tree.concat($scope.tree);
+    $scope.tree = $scope.tree.concat($scope.tree);
+    $scope.tree = $scope.tree.concat($scope.tree);
+    $scope.tree = $scope.tree.concat($scope.tree);
+    $scope.tree = $scope.tree.concat($scope.tree);
+    $scope.tree = $scope.tree.concat($scope.tree);
+    $scope.tree = $scope.tree.concat($scope.tree);
+    $scope.tree = $scope.tree.concat($scope.tree);
+    $scope.tree = $scope.tree.concat($scope.tree);
+
+    console.log($scope.tree.length);
+
     $scope.addAge = function(event, branch) {
       branch.age += 1;
     };

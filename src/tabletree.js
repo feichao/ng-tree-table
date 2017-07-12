@@ -3,7 +3,7 @@
 
   var SCOPE_HINT = '\\*\\*';
   var EXPAND_INTENT = 10; // 'px'
-  var DEBUG = true;
+  var DEBUG = false;
 
   function log(msg) {
     if (DEBUG) {
@@ -96,11 +96,17 @@
           }
           return true;
         };
+        $scope.pushTo = function(arr) {
+          var length = arr.length;
+          for(var i = 0; i < length; i++) {
+            $scope.trees.push(arr[i]);
+          }
+        };
         $scope.loadMore = function() {
-          $scope.trees = $scope.trees.concat($scope.treesAll.splice(0, $scope.maxRows));
+          $scope.pushTo($scope.treesAll.splice(0, $scope.maxRows));
         };
         $scope.loadAll = function() {
-          $scope.trees = $scope.trees.concat($scope.treesAll.splice(0, $scope.treesAll.length));
+          $scope.pushTo($scope.treesAll.splice(0, $scope.treesAll.length));
         };
 
         $scope.$watch(function () {
