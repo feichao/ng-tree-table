@@ -3,7 +3,7 @@
 
   var SCOPE_HINT = '\\*\\*';
   var EXPAND_INTENT = 10; // 'px'
-  var DEBUG = false;
+  var DEBUG = true;
 
   function log(msg) {
     if (DEBUG) {
@@ -58,7 +58,8 @@
         var trTemplate = getOriginalTtTemplate(tbody);
         var trTemplateElement = angular.element(trTemplate);
         tbody.append(getTreeTemplate(trTemplateElement));
-        tbody.append('<tr ng-if="trees.length <= 0"><td colspan="' + thNum + '">No Items</td></tr>');
+        tbody.append('<tr ng-if="treesAll.length > 0"><td class="load-more" colspan="' + (thNum - 1) + '" ng-click="loadMore()">Load more..</td><td class="load-all" ng-click="loadAll()">Load all...</td></tr>');
+        tbody.append('<tr ng-if="trees.length <= 0"><td class="no-items" colspan="' + thNum + '">No Items</td></tr>');
         trTemplateElement.remove();
         return getJqliteHtml(element);
       },
@@ -69,6 +70,7 @@
       return function ($scope, element, attr) {
         // whether deep watch the collection
         $scope.deepWatch = !!$scope.$eval(attr.deepWatch);
+        $scope.maxRows = $scope.$eval(attr.maxRows);
 
         // save tree status
         $scope.trees = [];
@@ -80,24 +82,31 @@
           });
           $scope.trees[index].__$isExpand = !$scope.trees[index].__$isExpand;
         };
-        $scope.isTrShow = function (index) {
-          if (!$scope.trees[index]) {
+        $scope.isTrShow = function (trees, index) {
+          if (!trees[index]) {
             return true;
           }
 
-          var i = $scope.trees[index].__$parentIndex;
+          var i = trees[index].__$parentIndex;
           while (typeof i === 'number' && i >= 0) {
-            if (!$scope.trees[i].__$isExpand) {
+            if (!trees[i].__$isExpand) {
               return false;
             }
-            i = $scope.trees[i].__$parentIndex;
+            i = trees[i].__$parentIndex;
           }
           return true;
+        };
+        $scope.loadMore = function() {
+          $scope.trees = $scope.trees.concat($scope.treesAll.splice(0, $scope.maxRows));
+        };
+        $scope.loadAll = function() {
+          $scope.trees = $scope.trees.concat($scope.treesAll.splice(0, $scope.treesAll.length));
         };
 
         $scope.$watch(function () {
           return $scope.$eval(attr.tableTree);
         }, function (tableTree) {
+          $scope.treesAll = [];
           $scope.trees = [];
           $scope.expandIndent = $scope.$eval(attr.expandIndent);
           $scope.indent = angular.isNumber($scope.expandIndent) ? $scope.expandIndent : EXPAND_INTENT;
@@ -106,31 +115,36 @@
           $scope.initExpand = $scope.initExpand;
 
           getTreeStatus(null, getArray(tableTree));
+          if(!angular.isNumber($scope.maxRows)) {
+            $scope.loadAll();
+          } else {
+            $scope.loadMore();
+          }
           log($scope.trees);
         }, $scope.deepWatch);
 
         function getTrDepth(index) {
-          var i = $scope.trees[index].__$parentIndex;
+          var i = $scope.treesAll[index].__$parentIndex;
           var depth = 0;
           while (typeof i === 'number' && i >= 0) {
             depth++;
-            i = $scope.trees[i].__$parentIndex;
+            i = $scope.treesAll[i].__$parentIndex;
           }
 
           return depth;
         };
 
         function saveBranchBlock(parentIndex, branch) {
-          var index = $scope.trees.length;
-          $scope.trees.push(angular.extend({
+          var index = $scope.treesAll.length;
+          $scope.treesAll.push(angular.extend({
             __$index: index,
             __$parentIndex: parentIndex
           }, branch));
 
           var depth = getTrDepth(index);
-          $scope.trees[index].__$isExpand = angular.isNumber($scope.initExpand) ? depth < $scope.initExpand - 1 : $scope.initExpand;
-          $scope.trees[index].__$isInitShow = $scope.isTrShow(index);
-          $scope.trees[index].__$depth = depth;
+          $scope.treesAll[index].__$isExpand = angular.isNumber($scope.initExpand) ? depth < $scope.initExpand - 1 : $scope.initExpand;
+          $scope.treesAll[index].__$isInitShow = $scope.isTrShow($scope.treesAll, index);
+          $scope.treesAll[index].__$depth = depth;
           return index;
         }
 
@@ -151,9 +165,9 @@
     function getTreeTemplate(trTemplateElement) {
       var ttTemplateStr;
 
-      trTemplateElement.attr('ng-repeat', 'tree in trees')
+      trTemplateElement.attr('ng-repeat', 'tree in trees track by tree.__$index')
         .attr('ng-if', 'tree.__$isInitShow')
-        .attr('ng-show', 'isTrShow(tree.__$index)');
+        .attr('ng-show', 'isTrShow(trees, tree.__$index)');
 
       var tdExpandElement = findTdExpand(trTemplateElement.find('td'));
       var tdExpandJQElement = angular.element(tdExpandElement);

@@ -31,3 +31,19 @@
 .tt-table .tt-expand-td .expand-icon.expanded {
   transform: rotateZ(90deg);
 }
+
+.tt-table td.load-more,
+.tt-table td.load-all, 
+.tt-table td.no-items {
+  text-align: center;
+}
+
+.tt-table td.load-more,
+.tt-table td.load-all {
+  background: #eee;
+  color: #666;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
