@@ -5,48 +5,14 @@
   var EXPAND_INTENT = 10; // 'px'
   var DEBUG = false;
 
-  var TT_TEMPLATE_ID = 'tt-template-id';
-  var originalTtTemplates = {};
-  var id = 0;
-
   function log(msg) {
-    if(DEBUG) {
+    if (DEBUG) {
       console.log(msg);
     }
   }
 
-  function generateId() {
-    return id++;
-  }
-
-  function saveOriginalTtTemplate(tbody) {
-    clearOriginalTtTemplate();
-
-    var id;
-    var ttTemplate = findTtTemplate(tbody.find('tr'));
-    if (ttTemplate) {
-      id = generateId();
-      originalTtTemplates[id] = ttTemplate;
-      return {
-        ttTemplateId: id,
-        ttTemplate: ttTemplate
-      };
-    }
-    return undefined;
-  }
-
-  function clearOriginalTtTemplate() {
-    var newOriginalTtTemplates = {};
-    var tables = angular.element(document.body).find('table');
-    angular.forEach(tables, function(table) {
-      var table = angular.element(table);
-      var id = table.attr(TT_TEMPLATE_ID);
-      if(originalTtTemplates[id]) {
-        newOriginalTtTemplates[id] = originalTtTemplates[id];
-      }
-    });
-
-    originalTtTemplates = newOriginalTtTemplates;
+  function getOriginalTtTemplate(tbody) {
+    return findTtTemplate(tbody.find('tr'));
   }
 
   function findMatchAttrTemplate(elements, attr) {
@@ -82,62 +48,46 @@
     .module('ngTableTree', [])
     .directive('tableTree', tableTree);
 
-  /**
-   * @ngInject
-   */
-  function tableTree($compile, $interpolate) {
+  function tableTree() {
     return {
       restrict: 'A',
-      scope: {
-        tableTree: '=',
-        initExpand: '@',
-        expandIndent: '@',
-        deepWatch: '@'
-      },
-      template: function(element) {
+      scope: true,
+      template: function (element) {
+        var thNum = element.find('thead').find('th').length;
         var tbody = element.addClass('tt-table').find('tbody');
-        var saveResult = saveOriginalTtTemplate(tbody);
-        if(!saveResult) {
-          return;  
-        }
-
-        log(originalTtTemplates);
-
-        angular.element(saveResult.ttTemplate).remove();
-        return getJqliteHtml(element.attr(TT_TEMPLATE_ID, saveResult.ttTemplateId));  
+        var trTemplate = getOriginalTtTemplate(tbody);
+        var trTemplateElement = angular.element(trTemplate);
+        tbody.append(getTreeTemplate(trTemplateElement));
+        tbody.append('<tr ng-if="trees.length <= 0"><td colspan="' + thNum + '">No Items</td></tr>');
+        trTemplateElement.remove();
+        return getJqliteHtml(element);
       },
-      // priority: 1001,
-      // terminal: true,
       compile: compile
     };
 
     function compile(tElement, tAttr) {
-      var thNum = tElement.find('thead').find('th').length;
-      var tbody = tElement.addClass('tt-table').find('tbody');
-      var ttTemplateDom = originalTtTemplates[tElement.attr(TT_TEMPLATE_ID)];
-
       return function ($scope, element, attr) {
-        log('start post link');
-        var ttTemplateElement = angular.element(ttTemplateDom);
-        var templateStr = getTreeTemplate();
-        var treesCompileScope;
-
         // whether deep watch the collection
-        $scope.deepWatch = $scope.deepWatch ? angular.fromJson($scope.deepWatch) : true;
+        $scope.deepWatch = !!$scope.$eval(attr.deepWatch);
 
         // save tree status
         $scope.trees = [];
         $scope.toggleExpand = function (index) {
+          $scope.trees.filter(function(tree) {
+            return tree.__$parentIndex === index;
+          }).forEach(function(tree) {
+            tree.__$isInitShow = true;
+          });
           $scope.trees[index].__$isExpand = !$scope.trees[index].__$isExpand;
         };
         $scope.isTrShow = function (index) {
-          if(!$scope.trees[index]) {
+          if (!$scope.trees[index]) {
             return true;
           }
 
           var i = $scope.trees[index].__$parentIndex;
-          while(typeof i === 'number' && i >= 0) {
-            if(!$scope.trees[i].__$isExpand) {
+          while (typeof i === 'number' && i >= 0) {
+            if (!$scope.trees[i].__$isExpand) {
               return false;
             }
             i = $scope.trees[i].__$parentIndex;
@@ -145,41 +95,24 @@
           return true;
         };
 
-        $scope.$watch('tableTree', function () {
+        $scope.$watch(function () {
+          return $scope.$eval(attr.tableTree);
+        }, function (tableTree) {
           $scope.trees = [];
-          $scope.indent = angular.isDefined($scope.expandIndent) ? $scope.expandIndent : EXPAND_INTENT;
-          $scope.initExpand = $scope.initExpand ? angular.fromJson($scope.initExpand) : true;
+          $scope.expandIndent = $scope.$eval(attr.expandIndent);
+          $scope.indent = angular.isNumber($scope.expandIndent) ? $scope.expandIndent : EXPAND_INTENT;
 
-          getTreeStatus(null, getArray($scope.tableTree));
+          $scope.initExpand = $scope.$eval(attr.initExpand);
+          $scope.initExpand = $scope.initExpand;
+
+          getTreeStatus(null, getArray(tableTree));
           log($scope.trees);
-          if (!$scope.trees.length) {
-            return tbody.html('<tr><td colspan="' + thNum + '">No Items</td></tr>');
-          }
-
-          if(treesCompileScope) {
-            treesCompileScope.$destroy();
-          }
-
-          treesCompileScope = getNewScope();
-          var compileStr = $compile(templateStr)(treesCompileScope);
-          var templateElement = angular.element(compileStr);
-          tbody.html('').append(templateElement);
         }, $scope.deepWatch);
-
-        function getNewScope() {
-          var scope = $scope.$parent.$new();
-          for(var key in $scope) {
-            if($scope.hasOwnProperty(key) && key.charAt(0) !== '$') {
-              scope[key] = $scope[key];
-            }
-          }
-          return scope;
-        }
 
         function getTrDepth(index) {
           var i = $scope.trees[index].__$parentIndex;
           var depth = 0;
-          while(typeof i === 'number' && i >= 0) {
+          while (typeof i === 'number' && i >= 0) {
             depth++;
             i = $scope.trees[i].__$parentIndex;
           }
@@ -196,6 +129,7 @@
 
           var depth = getTrDepth(index);
           $scope.trees[index].__$isExpand = angular.isNumber($scope.initExpand) ? depth < $scope.initExpand - 1 : $scope.initExpand;
+          $scope.trees[index].__$isInitShow = $scope.isTrShow(index);
           $scope.trees[index].__$depth = depth;
           return index;
         }
@@ -211,40 +145,41 @@
             getTreeStatus(branchIndex, getArray(branch.children));
           }
         }
-
-        function getTreeTemplate() {
-          var ttTemplateStr;
-
-          ttTemplateElement.attr('ng-repeat', 'tree in trees')
-            .attr('ng-show', 'isTrShow(tree.__$index)');
-
-          var tdExpandElement = findTdExpand(ttTemplateElement.find('td'));
-          var tdExpandJQElement = angular.element(tdExpandElement);
-          tdExpandJQElement.html(getJqliteHtml(getExpandTemplate(tdExpandJQElement)));
-
-          ttTemplateStr = getJqliteHtml(ttTemplateElement).replace(/\*\*/g, 'tree');
-          log(ttTemplateStr);
-
-          return ttTemplateStr;
-        }
-
-        function getExpandTemplate(tdElement) {
-          var isShow =  'tree.children.length > 0';
-          var isExpand = 'tree.__$isExpand && ' + isShow;
-          var ngClass = isExpand + ' ? \'expanded\' : \'\'';
-          var expandIcon = angular.element('<i></i>')
-          expandIcon.attr('ng-class', ngClass)
-            .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\', marginLeft: tree.__$depth * indent + \'px\'}')
-            .attr('ng-click', 'toggleExpand(tree.__$index)')
-            .addClass('expand-icon');
-
-          return angular.element('<div></div>')
-            .append(expandIcon)
-            .append(tdElement.addClass('tt-expand-td').contents())
-            .attr('layout', 'row')
-            .attr('layout-align', 'start center');
-        }
       };
+    }
+
+    function getTreeTemplate(trTemplateElement) {
+      var ttTemplateStr;
+
+      trTemplateElement.attr('ng-repeat', 'tree in trees')
+        .attr('ng-if', 'tree.__$isInitShow')
+        .attr('ng-show', 'isTrShow(tree.__$index)');
+
+      var tdExpandElement = findTdExpand(trTemplateElement.find('td'));
+      var tdExpandJQElement = angular.element(tdExpandElement);
+      tdExpandJQElement.html(getJqliteHtml(getExpandTemplate(tdExpandJQElement)));
+
+      ttTemplateStr = getJqliteHtml(trTemplateElement).replace(/\*\*/g, 'tree');
+      log(ttTemplateStr);
+
+      return ttTemplateStr;
+    }
+
+    function getExpandTemplate(tdElement) {
+      var isShow = 'tree.children.length > 0';
+      var isExpand = 'tree.__$isExpand && ' + isShow;
+      var ngClass = isExpand + ' ? \'expanded\' : \'\'';
+      var expandIcon = angular.element('<i></i>')
+      expandIcon.attr('ng-class', ngClass)
+        .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\', marginLeft: tree.__$depth * indent + \'px\'}')
+        .attr('ng-click', 'toggleExpand(tree.__$index)')
+        .addClass('expand-icon');
+
+      return angular.element('<div></div>')
+        .append(expandIcon)
+        .append(tdElement.addClass('tt-expand-td').contents())
+        .attr('layout', 'row')
+        .attr('layout-align', 'start center');
     }
   }
 })();
