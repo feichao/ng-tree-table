@@ -79,6 +79,8 @@ $scope.tree = [{
   contact: '13600010007'
 }];
 ```
+#### 安装
+bower install --save ngTableTree
 
 #### 使用
 如上述例子，在需要使用 table tree 的地方加入 table-tree 指令，并且关联要绑定的数据。
