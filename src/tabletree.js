@@ -191,11 +191,12 @@
           var index = $scope.trees.length;
           $scope.trees.push(angular.extend({
             __$index: index,
-            __$parentIndex: parentIndex,
-            __$isExpand: $scope.initExpand
+            __$parentIndex: parentIndex
           }, branch));
 
-          $scope.trees[index].__$depth = getTrDepth(index);
+          var depth = getTrDepth(index);
+          $scope.trees[index].__$isExpand = angular.isNumber($scope.initExpand) ? depth < $scope.initExpand - 1 : $scope.initExpand;
+          $scope.trees[index].__$depth = depth;
           return index;
         }
 
@@ -230,9 +231,9 @@
         function getExpandTemplate(tdElement) {
           var isShow =  'tree.children.length > 0';
           var isExpand = 'tree.__$isExpand && ' + isShow;
-          var icon = isExpand + ' ? \'keyboard_arrow_down\' : \'keyboard_arrow_right\'';
-          var expandIcon = angular.element('<ng-md-icon size="24"></ng-md-icon>')
-          expandIcon.attr('icon', '{{' + icon + '}}')
+          var ngClass = isExpand + ' ? \'expanded\' : \'\'';
+          var expandIcon = angular.element('<i></i>')
+          expandIcon.attr('ng-class', ngClass)
             .attr('ng-style', '{ visibility: ' + isShow + ' ? \'\' : \'collapse\', marginLeft: tree.__$depth * indent + \'px\'}')
             .attr('ng-click', 'toggleExpand(tree.__$index)')
             .addClass('expand-icon');

@@ -8,7 +8,26 @@
   outline: none;
 }
 
-.tt-table .tt-expand-td .expand-icon svg {
-  fill: #ccc;
-  vertical-align: middle;
+.tt-table .tt-expand-td .expand-icon {
+  display: inline-block;
+  height: 12px;
+  margin: 0 8px;
+  position: relative;
+  transition: transform .35s;
+  width: 8px;
+}
+
+.tt-table .tt-expand-td .expand-icon:after {
+  border: 6px solid transparent;
+  border-left-width: 8px;
+  border-left-color: #999;
+  border-radius: 2px;
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+
+.tt-table .tt-expand-td .expand-icon.expanded {
+  transform: rotateZ(90deg);
 }
