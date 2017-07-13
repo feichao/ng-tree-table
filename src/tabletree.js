@@ -48,7 +48,7 @@
     .module('ngTableTree', [])
     .directive('tableTree', tableTree);
 
-  function tableTree() {
+  function tableTree($interval) {
     return {
       restrict: 'A',
       scope: true,
@@ -96,6 +96,9 @@
           }
           return true;
         };
+        $scope.clear = function() {
+          $interval.cancel($scope.loadTimer);
+        };
         $scope.pushTo = function(arr) {
           var length = arr.length;
           for(var i = 0; i < length; i++) {
@@ -106,12 +109,22 @@
           $scope.pushTo($scope.treesAll.splice(0, $scope.maxRows));
         };
         $scope.loadAll = function() {
-          $scope.pushTo($scope.treesAll.splice(0, $scope.treesAll.length));
+          $scope.loadTimer = $interval(function() {
+            $scope.pushTo($scope.treesAll.splice(0, 10));
+            if($scope.treesAll.length <= 0) {
+              $scope.clear();
+            }
+          }, 20);
         };
+        $scope.$on('$destroy', function() {
+          $scope.clear();
+        });
 
         $scope.$watch(function () {
           return $scope.$eval(attr.tableTree);
         }, function (tableTree) {
+          $scope.clear();
+
           $scope.treesAll = [];
           $scope.trees = [];
           $scope.expandIndent = $scope.$eval(attr.expandIndent);
